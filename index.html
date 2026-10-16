@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Technical Requirements · TGI Sport</title>
+  <link rel="icon" type="image/png" href="Logo/TGI-Sport.png">
+  <link rel="stylesheet" href="app/stile.css?v=1">
+</head>
+<body class="bloccato">
+  <header class="top">
+    <div class="top-inner">
+      <div class="brand">
+        <img class="logo" src="Logo/TGI-Sport.png" alt="TGI Sport">
+        <div>
+          <span class="kicker">AIR® Virtual Advertising</span>
+          <h1>Technical Requirements Document</h1>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="button" id="btn-new" class="ghost">New</button>
+        <label class="ghost button" for="file-import">Import data</label>
+        <input type="file" id="file-import" accept=".json,application/json" hidden>
+        <button type="button" id="btn-export" class="ghost">Export data</button>
+        <button type="button" id="btn-docx" class="primary">Generate .docx</button>
+        <button type="button" id="btn-esci" class="ghost" hidden>Sign out</button>
+      </div>
+    </div>
+    <div class="top-inner sub">
+      <div class="filter">
+        <label for="party">Show fields for</label>
+        <select id="party">
+          <option value="all">Everyone</option>
+          <option value="TGI">TGI Sport</option>
+          <option value="HB">Host Broadcaster</option>
+          <option value="UEFA">UEFA</option>
+          <option value="LED">LED provider</option>
+          <option value="BC">VBR Broadcaster</option>
+        </select>
+      </div>
+      <div id="progress" class="progress" aria-live="polite"></div>
+      <span id="saved" class="saved"></span>
+    </div>
+  </header>
+
+
+  <!-- Accesso con la password del team (il modello Word è cifrato) -->
+  <div class="accesso in-attesa" id="accesso">
+    <form class="accesso-scheda" id="accesso-form" autocomplete="on">
+      <img class="accesso-logo" src="Logo/TGI-Sport.png" alt="TGI Sport">
+      <h1>Technical Requirements</h1>
+      <p>Enter the team password to sign in.</p>
+      <label class="campo"><span>Password</span><input type="password" id="accesso-password" autocomplete="current-password" required></label>
+      <label class="spunta"><input type="checkbox" id="accesso-ricorda" checked><span>Remember on this device</span></label>
+      <div class="errore" id="accesso-errore" role="alert" hidden></div>
+      <button type="submit" class="primary" id="accesso-entra">Sign in</button>
+    </form>
+  </div>
+
+  <main>
+    <p class="privacy">Data stays in this browser: nothing is sent to a server. Use <b>Export data</b> to send the file to another party and <b>Import data</b> to merge what they send back.</p>
+
+    <form id="form" autocomplete="off">
+      <section>
+        <h2><span>1</span> Event overview</h2>
+        <div class="grid">
+          <div class="f" data-owner="TGI"><label>Team A (home)</label><input name="team_a" placeholder="Poland"></div>
+          <div class="f" data-owner="TGI"><label>Team B (away)</label><input name="team_b" placeholder="Sweden"></div>
+          <div class="f" data-owner="TGI"><label>Date</label><input name="date" type="date"></div>
+          <div class="f" data-owner="TGI"><label>Stadium</label><input name="stadium" placeholder="Stadion Miejski"></div>
+          <div class="f" data-owner="TGI"><label>City, country</label><input name="city" placeholder="Wroclaw Poland"></div>
+          <div class="f" data-owner="TGI"><label>Kick-off (local)</label><input name="ko_local" type="time"></div>
+          <div class="f" data-owner="TGI"><label>Local time vs CET/CEST</label>
+            <select name="tz_offset">
+              <option value="-1">−1 h (UK, Ireland, Portugal)</option>
+              <option value="0" selected>same as CET/CEST</option>
+              <option value="1">+1 h (Greece, Romania, Israel…)</option>
+              <option value="2">+2 h (Turkey in winter)</option>
+            </select>
+          </div>
+          <div class="f" data-owner="TGI"><label>VBR broadcaster</label><input name="broadcaster" placeholder="ViaPlay"></div>
+        </div>
+        <div class="f wide" data-owner="TGI">
+          <label>Virtual services</label>
+          <div class="checks">
+            <label><input type="checkbox" name="svc_led1"> 1st row LED replacement</label>
+            <label><input type="checkbox" name="svc_led2"> 2nd row LED replacement</label>
+            <label><input type="checkbox" name="svc_carpets"> Static replacement –
+              <input name="svc_carpets_n" type="number" min="1" max="20" class="tiny" placeholder="n"> carpets</label>
+            <label class="other">Other <input name="svc_other" placeholder="e.g. Upper tier ribbon LED replacement"></label>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2><span>2</span> Accreditation</h2>
+        <h3>On-site personnel</h3>
+        <div class="rows" id="people"></div>
+        <button type="button" class="add" data-add="people">+ Add person</button>
+        <h3>Vehicles</h3>
+        <div class="rows" id="vehicles"></div>
+        <button type="button" class="add" data-add="vehicles">+ Add vehicle</button>
+        <p class="hint">Roles: TL Team Lead · VBRS VBR Support · MCR L MCR Lead @ ROC · D Driver · CM Commercial Manager</p>
+      </section>
+
+      <section>
+        <h2><span>3</span> Signals &amp; integration</h2>
+        <div class="grid">
+          <div class="f" data-owner="HB"><label>Native video format</label><input name="video_format" placeholder="1080i50" list="formats"></div>
+          <div class="f" data-owner="HB"><label>Colour space</label>
+            <select name="colour_space"><option value=""></option><option>SDR</option><option>HDR HLG</option><option>HDR PQ</option></select></div>
+          <div class="f" data-owner="HB"><label>Audio – ch 1-2</label><input name="audio_12" placeholder="Stereo – international sound"></div>
+          <div class="f" data-owner="HB"><label>Audio – ch 3-4</label><input name="audio_34"></div>
+          <div class="f" data-owner="HB"><label>Audio – ch 5-6</label><input name="audio_56"></div>
+          <div class="f" data-owner="HB"><label>Audio – ch 7-8</label><input name="audio_78"></div>
+        </div>
+        <datalist id="formats"><option>1080i50</option><option>1080p50</option><option>2160p50</option></datalist>
+      </section>
+
+      <section class="fixed">
+        <h2><span>4</span> Requirements for HB, venue and LED provider</h2>
+        <p class="hint">Standard text from the template – nothing to fill in.</p>
+      </section>
+
+      <section>
+        <h2><span>5</span> Event schedule</h2>
+        <p class="hint">Enter local times; the CET/CEST column is calculated from the time difference set in section 1.</p>
+        <table class="sched">
+          <thead><tr><th>Activity</th><th>Local</th><th id="cet-head">CET/CEST</th><th>Dur.</th></tr></thead>
+          <tbody id="schedule"></tbody>
+        </table>
+        <div class="grid">
+          <div class="f" data-owner="TGI"><label>VBR distribution via</label>
+            <select name="link_type"><option value=""></option><option>Satellite</option><option>Fiber</option></select></div>
+        </div>
+      </section>
+
+      <section>
+        <h2><span>6</span> Event contacts</h2>
+        <div class="grid">
+          <div class="f" data-owner="UEFA"><label>VOBM – name</label><input name="vobm_name"></div>
+          <div class="f" data-owner="UEFA"><label>VOBM – phone</label><input name="vobm_phone" type="tel" placeholder="+41 …"></div>
+          <div class="f" data-owner="LED"><label>LED operator – name</label><input name="led_name"></div>
+          <div class="f" data-owner="LED"><label>LED operator – phone</label><input name="led_phone" type="tel"></div>
+          <div class="f" data-owner="BC"><label>VBR broadcaster MCR – phone</label><input name="broadcaster_phone" type="tel"></div>
+        </div>
+        <h3>TGI Sport contacts</h3>
+        <div class="grid">
+          <div class="f" data-owner="TGI"><label>MCR Lead – name</label><input name="mcrl_name"></div>
+          <div class="f" data-owner="TGI"><label>MCR Lead – phone</label><input name="mcrl_phone" type="tel"></div>
+          <div class="f" data-owner="TGI"><label>MCR ROC Lissone – phone</label><input name="mcr_phone" type="tel"></div>
+        </div>
+        <button type="button" id="btn-defaults" class="link">Remember TGI contacts in this browser</button>
+      </section>
+
+      <section>
+        <h2><span>7</span> Document</h2>
+        <div class="grid">
+          <div class="f" data-owner="TGI"><label>Version</label><input name="version" placeholder="v1 – 16/10/2026"></div>
+        </div>
+      </section>
+    </form>
+  </main>
+
+  <template id="tpl-person">
+    <div class="row">
+      <div class="f" data-owner="TGI"><label>Surname</label><input data-k="surname"></div>
+      <div class="f" data-owner="TGI"><label>First name</label><input data-k="first_name"></div>
+      <div class="f" data-owner="TGI"><label>Role</label>
+        <select data-k="role"><option>VBRS</option><option>TL</option><option>CT</option><option>D</option><option>CM</option><option>MCR L</option></select></div>
+      <div class="f" data-owner="TGI"><label>ID / Passport no.</label><input data-k="id_no"></div>
+      <div class="f" data-owner="UEFA"><label>Accr. type</label><input data-k="accr_type"></div>
+      <div class="f" data-owner="TGI"><label>Phone</label><input data-k="phone" type="tel"></div>
+      <button type="button" class="del" title="Remove">×</button>
+    </div>
+  </template>
+  <template id="tpl-vehicle">
+    <div class="row">
+      <div class="f" data-owner="TGI"><label>Vehicle</label><input data-k="vehicle" placeholder="Crew car / van"></div>
+      <div class="f" data-owner="TGI"><label>Plate</label><input data-k="plate"></div>
+      <div class="f" data-owner="TGI"><label>Dimensions (L×W×H)</label><input data-k="dims"></div>
+      <div class="f" data-owner="TGI"><label>Driver</label><input data-k="driver"></div>
+      <div class="f" data-owner="UEFA"><label>Parking position</label><input data-k="parking"></div>
+      <button type="button" class="del" title="Remove">×</button>
+    </div>
+  </template>
+
+  <script src="lib/pizzip.min.js?v=1"></script>
+  <script src="lib/docxtemplater.min.js?v=1"></script>
+  <script src="app/cifratura.js?v=1"></script>
+  <script src="app/archivio.js?v=1"></script>
+  <script src="app/accesso.js?v=1"></script>
+  <script src="modello/modello.js?v=1"></script>
+  <script src="app/app.js?v=1"></script>
+</body>
+</html>

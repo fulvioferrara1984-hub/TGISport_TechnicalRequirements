@@ -1,0 +1,11 @@
+# Repository pubblico: si pubblicano solo i file della pagina (whitelist).
+/*
+!/.gitignore
+!/.nojekyll
+!/index.html
+!/app/
+!/lib/
+!/modello/
+!/Logo/
+!/README.md
+.DS_Store

@@ -1,0 +1,94 @@
+:root {
+  --navy: #022338; --blue: #0047ff; --light: #eaf0fb; --line: #c9d3e6; --grey: #6b7280;
+  --bg: #f6f8fc; --card: #ffffff; --text: #111827; --missing: #c2410c; --missing-bg: #fff4e5; --ok: #15803d;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+
+.top { position: sticky; top: 0; z-index: 5; background: var(--navy); color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+.top-inner { max-width: 1040px; margin: 0 auto; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.top-inner.sub { padding-top: 0; font-size: 13px; }
+.kicker { display: block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #9fb7ff; }
+h1 { margin: 0; font-size: 20px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+button, .button { font: inherit; font-size: 14px; border-radius: 8px; padding: 8px 14px; cursor: pointer; border: 1px solid transparent; }
+.primary { background: var(--blue); color: #fff; font-weight: 600; }
+.primary:disabled { opacity: .6; cursor: wait; }
+.ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,.35); }
+.ghost:hover { background: rgba(255,255,255,.1); }
+.filter { display: flex; align-items: center; gap: 8px; }
+.filter select { font: inherit; border-radius: 6px; padding: 4px 6px; }
+.progress { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { background: rgba(255,255,255,.12); color: #fff; padding: 3px 10px; border-radius: 999px; font-size: 12px; }
+.chip b { color: #ffd7a8; }
+.chip.done b { color: #9be2b0; }
+.saved { color: #c8d4ff; font-size: 12px; }
+
+main { max-width: 1040px; margin: 0 auto; padding: 16px; }
+.privacy { background: var(--light); border-left: 4px solid var(--blue); padding: 10px 14px; border-radius: 6px; font-size: 13px; margin: 4px 0 16px; }
+
+section { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px 18px; margin-bottom: 16px; }
+section.fixed { background: transparent; }
+h2 { margin: 0 0 12px; font-size: 17px; color: var(--navy); display: flex; align-items: center; gap: 10px; }
+h2 span { color: var(--blue); }
+h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--blue); margin: 16px 0 8px; }
+.hint { color: var(--grey); font-size: 13px; margin: 6px 0 10px; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.f { display: flex; flex-direction: column; gap: 4px; position: relative; }
+.f.wide { margin-top: 12px; }
+.f > label { font-size: 12px; font-weight: 600; color: var(--navy); }
+.f[data-owner]::after { content: attr(data-owner); position: absolute; top: 0; right: 0; font-size: 10px; font-weight: 700; color: var(--grey); letter-spacing: .04em; }
+input, select { font: inherit; padding: 7px 9px; border: 1px solid var(--line); border-radius: 7px; background: #fff; color: var(--text); min-width: 0; width: 100%; }
+input::placeholder { color: #a7b0bf; font-style: italic; }
+input:focus, select:focus { outline: 2px solid var(--blue); outline-offset: 0; border-color: var(--blue); }
+.f.missing input, .f.missing select { background: var(--missing-bg); border-color: #f5c48b; }
+.f.dim { opacity: .35; }
+.f.dim:focus-within { opacity: 1; }
+
+.checks { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; }
+.checks label { display: flex; align-items: center; gap: 6px; font-size: 14px; }
+.checks input[type=checkbox] { width: auto; }
+.checks .tiny { width: 64px; }
+.checks .other { flex: 1 1 280px; }
+
+.rows { display: flex; flex-direction: column; gap: 10px; }
+.row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)) 32px; gap: 8px; align-items: end; padding: 10px; border: 1px dashed var(--line); border-radius: 10px; }
+#vehicles .row { grid-template-columns: repeat(5, minmax(0, 1fr)) 32px; }
+.del { background: transparent; color: var(--grey); border: 1px solid var(--line); padding: 4px 0; height: 36px; font-size: 18px; }
+.del:hover { color: var(--missing); border-color: var(--missing); }
+.add, .link { margin-top: 10px; background: transparent; color: var(--blue); border: 1px dashed var(--blue); }
+.link { border: none; padding: 4px 0; text-decoration: underline; font-size: 13px; }
+
+.sched { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+.sched th { text-align: left; font-size: 12px; color: #fff; background: var(--navy); padding: 7px 8px; }
+.sched td { padding: 6px 8px; border-bottom: 1px solid var(--line); }
+.sched input { max-width: 130px; }
+.sched .cet, .from-ko { font-variant-numeric: tabular-nums; color: var(--navy); font-weight: 600; }
+.sched tr.f { display: table-row; }
+.sched tr.f::after { content: none; }
+.sched tr.missing td:nth-child(2) input { background: var(--missing-bg); }
+.tag { font-style: normal; font-size: 10px; font-weight: 700; color: var(--grey); margin-left: 4px; }
+
+@media (max-width: 760px) {
+  .row, #vehicles .row { grid-template-columns: 1fr 1fr; }
+  .row .del { grid-column: 1 / -1; }
+  .top { position: static; }
+}
+
+/* ---------- marchio e accesso ---------- */
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo { height: 30px; background: #fff; border-radius: 6px; padding: 3px 6px; }
+body.bloccato main, body.bloccato .top { visibility: hidden; }
+.accesso { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 16px; background: var(--bg); }
+.accesso[hidden] { display: none; }
+.accesso.in-attesa .accesso-scheda { visibility: hidden; }
+.accesso-scheda { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 28px; width: 100%; max-width: 380px; box-shadow: 0 6px 24px rgba(2,35,56,.08); display: flex; flex-direction: column; gap: 12px; }
+.accesso-logo { height: 40px; align-self: flex-start; }
+.accesso-scheda h1 { color: var(--navy); margin: 0; }
+.accesso-scheda p { margin: 0; color: var(--grey); font-size: 14px; }
+.campo { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: var(--navy); }
+.spunta { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.spunta input { width: auto; }
+.errore { color: #b42318; font-size: 13px; }
