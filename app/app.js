@@ -22,7 +22,7 @@
   // Testo scritto nel .docx quando un campo resta vuoto (lo stesso segnaposto del modello Word)
   const PH = {
     team_a: '[Team A]', team_b: '[Team B]', date: '[Date]', stadium: '[Stadium]', city: '[City Country]',
-    ko_local: '[KO time]', broadcaster: '[VBR broadcaster]', services: '[1st row LED replacement]',
+    ko_local: '[KO time]', broadcaster: '[VBR broadcaster]', services: '[1st row LED replacement]\n[2nd row LED replacement]\n[Static replacement – n carpets / delete if not used]',
     video_format: '[1080i50]', colour_space: '[SDR / HDR]', audio_12: '[e.g. Stereo – international sound]',
     audio_34: '[content]', audio_56: '[content]', audio_78: '[content]', link_type: '[Satellite/Fiber]',
     vobm_name: '[Name]', vobm_phone: '[+xx phone]', led_name: '[Name]', led_phone: '[+xx phone]',
@@ -169,7 +169,7 @@
 
   // ---------- nuovo / import / export ----------
   function blank() {
-    const d = { tz: '', svc_led1: true, people: [{ role: 'VBRS' }], vehicles: [], modified: null };
+    const d = { tz: '', people: [{ role: 'VBRS' }], vehicles: [], modified: null };
     Object.assign(d, store.get(DEFAULTS_STORE) || {});
     return d;
   }
