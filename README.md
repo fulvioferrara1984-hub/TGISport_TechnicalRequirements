@@ -8,9 +8,10 @@ L'interfaccia è in inglese britannico; codice, commenti e questo README sono in
 
 1. Aprire il sito e inserire la **password del team**. Con *Remember on this device* non la chiede più su quel computer; *Sign out* la dimentica.
 2. Compilare le sezioni (Event overview, Accreditation, Signals, Schedule, Contacts). Ogni campo indica chi deve fornirlo: **TGI**, **HB** (Host Broadcaster), **UEFA**, **LED** (fornitore LED), **BC** (broadcaster VBR). In alto i contatori mostrano cosa manca a ciascuno; *Show fields for* evidenzia solo i campi di una parte.
-3. Lo schedule si compila in ora locale: la colonna CET/CEST si calcola dalla differenza di fuso impostata nella sezione 1, e CET o CEST si sceglie dalla data.
-4. **Export data** salva un `.json` da mandare a una parte esterna; **Import data** unisce il `.json` ricevuto (i valori pieni sovrascrivono, quelli vuoti non cancellano nulla).
-5. **Generate .docx** scarica il documento. I campi vuoti restano con il loro segnaposto `[...]`.
+3. Scrivendo la **città** (con o senza paese) il **fuso orario** si imposta da solo per i paesi UEFA; si può cambiare a mano dal menu. Lo schedule si compila in ora locale: la colonna CET/CEST si calcola con il fuso e l'ora legale del giorno partita (es. Londra BST/GMT, Turchia senza ora legale).
+4. Il piè di pagina del Word riporta la **data dell'ultima modifica** del modulo, aggiornata da sola.
+5. **Export data** salva un `.json` da mandare a una parte esterna; **Import data** unisce il `.json` ricevuto (i valori pieni sovrascrivono, quelli vuoti non cancellano nulla).
+6. **Generate .docx** scarica il documento. I campi vuoti restano con il loro segnaposto `[...]`.
 
 ## Privacy
 
@@ -35,7 +36,7 @@ Nel modello Word i campi sono `{tag}` (sintassi docxtemplater); le righe di pers
 | Percorso | Contenuto |
 |---|---|
 | `index.html` | pagina unica (accesso + modulo) |
-| `app/` | `app.js` modulo e generazione, `accesso.js`, `cifratura.js`, `archivio.js` (IndexedDB), `stile.css` |
+| `app/` | `app.js` modulo e generazione, `fusi.js` (città → fuso, conversione CET/CEST), `accesso.js`, `cifratura.js`, `archivio.js` (IndexedDB), `stile.css` |
 | `lib/` | PizZip e docxtemplater (copiati, nessun CDN; licenza MIT) |
 | `modello/modello.js` | modello Word cifrato |
 | `Logo/` | logo TGI Sport |

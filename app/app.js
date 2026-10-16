@@ -27,7 +27,7 @@
     audio_34: '[content]', audio_56: '[content]', audio_78: '[content]', link_type: '[Satellite/Fiber]',
     vobm_name: '[Name]', vobm_phone: '[+xx phone]', led_name: '[Name]', led_phone: '[+xx phone]',
     broadcaster_phone: '[+xx phone]', mcrl_name: '[Name]', mcrl_phone: '[+xx phone]', mcr_phone: '[+xx phone]',
-    version: '[v1 – date]', time: '[hh:mm]',
+    version: '[date]', time: '[hh:mm]',
     surname: '[Surname]', first_name: '[Name]', role: 'VBRS', id_no: '[ID / Passport no.]', accr_type: '[Accr. type]', phone: '[+xx phone]',
     vehicle: '[Crew car / van]', plate: '[Plate]', dims: '[L x W x H]', driver: '[Driver]', parking: '[Car park / permit]',
   };
@@ -77,9 +77,13 @@
     }
     d.people = readRows('people');
     d.vehicles = readRows('vehicles');
+    d.modified = ultimaModifica;
     return d;
   }
   function write(d) {
+    ultimaModifica = d.modified || null;
+    // dati salvati con la versione precedente (scarto orario fisso): il fuso si ricava dalla città
+    if (!d.tz && d.city) { const p = F.trovaPaese(d.city); if (p) d = { ...d, tz: p.fuso }; }
     for (const el of form.elements) {
       if (!el.name || !(el.name in d)) continue;
       if (el.type === 'checkbox') el.checked = !!d[el.name]; else el.value = d[el.name] ?? '';
@@ -90,29 +94,25 @@
     }
   }
 
-  // ---------- orari ----------
-  const shift = (hhmm, h) => {
-    if (!hhmm) return '';
-    const [H, M] = hhmm.split(':').map(Number);
-    const t = ((H * 60 + M - h * 60) % 1440 + 1440) % 1440;
-    return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
-  };
-  // CEST tra l'ultima domenica di marzo e l'ultima domenica di ottobre
-  function cetLabel(iso) {
-    if (!iso) return 'CET/CEST';
-    const d = new Date(iso + 'T12:00:00Z'), y = d.getUTCFullYear();
-    const lastSunday = m => { const x = new Date(Date.UTC(y, m + 1, 0)); x.setUTCDate(x.getUTCDate() - x.getUTCDay()); return x; };
-    return d >= lastSunday(2) && d < lastSunday(9) ? 'CEST' : 'CET';
-  }
+  // ---------- orari (fuso della città, ora legale del giorno partita: vedi fusi.js) ----------
+  const F = TRD.fusi;
+  const tzSelect = document.getElementById('tz');
+  [...F.PAESI].sort((x, y) => x.nome.localeCompare(y.nome)).forEach((p) => tzSelect.add(new Option(p.nome, p.fuso)));
+  const toCet = (d, hhmm) => F.inCet(d.date, hhmm, d.tz);
+  const cetLabel = (iso) => F.siglaCet(iso);
+  const dataBreve = (iso) => (iso ? iso.slice(0, 10).split('-').reverse().join('/') : '');
   const longDate = iso => iso ? new Date(iso + 'T12:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : '';
 
   function refreshDerived(d) {
-    const off = Number(d.tz_offset || 0);
+    const nota = document.getElementById('tz-nota');
+    nota.textContent = d.tz ? F.descrivi(d.date, d.tz) : (d.city ? 'City not recognised: choose the country' : '');
+    nota.classList.toggle('avviso', !d.tz && !!d.city);
+    document.getElementById('modificato').textContent = dataBreve(d.modified) || '–';
     document.getElementById('cet-head').textContent = cetLabel(d.date);
     document.querySelectorAll('[data-ko-copy]').forEach(el => { el.textContent = d.ko_local || '—'; });
     document.querySelectorAll('[data-cet]').forEach(el => {
       const k = el.dataset.cet;
-      el.textContent = shift(k === 'ko' ? d.ko_local : d[`${k}_local`], off) || '—';
+      el.textContent = toCet(d, k === 'ko' ? d.ko_local : d[`${k}_local`]) || '—';
     });
   }
 
@@ -142,8 +142,10 @@
   }
 
   // ---------- salvataggio automatico ----------
-  let t;
-  function changed() {
+  let t, ultimaModifica = null;
+  // modifica = l'utente ha cambiato qualcosa: aggiorna la data di ultima modifica (piè di pagina del Word)
+  function changed(modifica = true) {
+    if (modifica) ultimaModifica = new Date().toISOString();
     const d = read();
     refreshDerived(d);
     refreshProgress();
@@ -152,19 +154,28 @@
       document.getElementById('saved').textContent = store.set(STORE, d) ? 'Saved in this browser' : 'Not saved (browser storage unavailable) – use Export data';
     }, 300);
   }
-  form.addEventListener('input', changed);
-  form.addEventListener('change', changed);
+  // La città imposta il fuso; il menu resta modificabile a mano. Una scelta a mano non viene
+  // cancellata da una città non riconosciuta, un fuso automatico sì (sarebbe quello della città precedente).
+  let fusoAutomatico = true;
+  tzSelect.addEventListener('change', () => { fusoAutomatico = false; });
+  form.elements.city.addEventListener('input', () => {
+    const p = F.trovaPaese(form.elements.city.value);
+    if (p) { tzSelect.value = p.fuso; fusoAutomatico = true; }
+    else if (fusoAutomatico) tzSelect.value = '';
+  });
+  form.addEventListener('input', () => changed());
+  form.addEventListener('change', () => changed());
   document.getElementById('party').addEventListener('change', refreshProgress);
 
   // ---------- nuovo / import / export ----------
   function blank() {
-    const d = { tz_offset: '0', svc_led1: true, people: [{ role: 'VBRS' }], vehicles: [] };
+    const d = { tz: '', svc_led1: true, people: [{ role: 'VBRS' }], vehicles: [], modified: null };
     Object.assign(d, store.get(DEFAULTS_STORE) || {});
     return d;
   }
   document.getElementById('btn-new').addEventListener('click', () => {
     if (!confirm('Start a new document? Unsaved data in this browser will be cleared (export it first if needed).')) return;
-    form.reset(); write(blank()); changed();
+    form.reset(); write(blank()); changed(false);
   });
 
   const slug = s => (s || '').trim().replace(/\s+/g, '_');
@@ -221,24 +232,23 @@
   }
   function docData(d) {
     const v = (k, ph = PH[k]) => (d[k] && String(d[k]).trim()) || ph;
-    const off = Number(d.tz_offset || 0);
     const out = {
       team_a: v('team_a'), team_b: v('team_b'),
       team_a_up: d.team_a ? d.team_a.toUpperCase() : '[TEAM A]', team_b_up: d.team_b ? d.team_b.toUpperCase() : '[TEAM B]',
       date: longDate(d.date) || PH.date, stadium: v('stadium'), city: v('city'),
-      ko_local: v('ko_local'), ko_tz: cetLabel(d.date), ko_cet: shift(d.ko_local, off) || PH.time,
+      ko_local: v('ko_local'), ko_tz: cetLabel(d.date), ko_cet: toCet(d, d.ko_local) || PH.time,
       services: services(d) || PH.services, broadcaster: v('broadcaster'),
       video_format: v('video_format'), colour_space: v('colour_space'),
       audio_12: v('audio_12'), audio_34: v('audio_34'), audio_56: v('audio_56'), audio_78: v('audio_78'),
       link_type: v('link_type'),
       vobm_name: v('vobm_name'), vobm_phone: v('vobm_phone'), led_name: v('led_name'), led_phone: v('led_phone'),
       broadcaster_phone: v('broadcaster_phone'), mcrl_name: v('mcrl_name'), mcrl_phone: v('mcrl_phone'), mcr_phone: v('mcr_phone'),
-      version: v('version'),
+      version: dataBreve(d.modified || new Date().toISOString()),
     };
     for (const [key] of SCHEDULE) {
       if (key === 'ko') continue;
       out[`${key}_local`] = d[`${key}_local`] || PH.time;
-      out[`${key}_cet`] = shift(d[`${key}_local`], off) || PH.time;
+      out[`${key}_cet`] = toCet(d, d[`${key}_local`]) || PH.time;
     }
     const fill = (rows, keys) => {
       const list = rows.filter(r => keys.some(k => r[k]));
@@ -276,6 +286,6 @@
     document.body.classList.remove('bloccato');
     document.getElementById('btn-esci').hidden = false;
     write(store.get(STORE) || blank());
-    changed();
+    changed(false);
   });
 })();

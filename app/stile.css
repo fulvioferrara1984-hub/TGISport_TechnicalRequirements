@@ -92,3 +92,8 @@ body.bloccato main, body.bloccato .top { visibility: hidden; }
 .spunta { display: flex; align-items: center; gap: 6px; font-size: 13px; }
 .spunta input { width: auto; }
 .errore { color: #b42318; font-size: 13px; }
+
+/* ---------- fuso orario e data di modifica ---------- */
+.nota { font-size: 12px; color: var(--grey); min-height: 16px; }
+.nota.avviso { color: var(--missing); }
+.sola-lettura { padding: 7px 0; font-variant-numeric: tabular-nums; color: var(--navy); font-weight: 600; }

@@ -7,7 +7,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>Technical Requirements · TGI Sport</title>
   <link rel="icon" type="image/png" href="Logo/TGI-Sport.png">
-  <link rel="stylesheet" href="app/stile.css?v=1">
+  <link rel="stylesheet" href="app/stile.css?v=2">
 </head>
 <body class="bloccato">
   <header class="top">
@@ -72,13 +72,9 @@
           <div class="f" data-owner="TGI"><label>Stadium</label><input name="stadium" placeholder="Stadion Miejski"></div>
           <div class="f" data-owner="TGI"><label>City, country</label><input name="city" placeholder="Wroclaw Poland"></div>
           <div class="f" data-owner="TGI"><label>Kick-off (local)</label><input name="ko_local" type="time"></div>
-          <div class="f" data-owner="TGI"><label>Local time vs CET/CEST</label>
-            <select name="tz_offset">
-              <option value="-1">−1 h (UK, Ireland, Portugal)</option>
-              <option value="0" selected>same as CET/CEST</option>
-              <option value="1">+1 h (Greece, Romania, Israel…)</option>
-              <option value="2">+2 h (Turkey in winter)</option>
-            </select>
+          <div class="f" data-owner="TGI"><label>Time zone</label>
+            <select name="tz" id="tz"><option value="">– set from the city –</option></select>
+            <small class="nota" id="tz-nota"></small>
           </div>
           <div class="f" data-owner="TGI"><label>VBR broadcaster</label><input name="broadcaster" placeholder="ViaPlay"></div>
         </div>
@@ -158,7 +154,7 @@
       <section>
         <h2><span>7</span> Document</h2>
         <div class="grid">
-          <div class="f" data-owner="TGI"><label>Version</label><input name="version" placeholder="v1 – 16/10/2026"></div>
+          <div class="f"><label>Last modified</label><output id="modificato" class="sola-lettura">–</output></div>
         </div>
       </section>
     </form>
@@ -192,7 +188,8 @@
   <script src="app/cifratura.js?v=1"></script>
   <script src="app/archivio.js?v=1"></script>
   <script src="app/accesso.js?v=1"></script>
-  <script src="modello/modello.js?v=2"></script>
-  <script src="app/app.js?v=1"></script>
+  <script src="modello/modello.js?v=3"></script>
+  <script src="app/fusi.js?v=1"></script>
+  <script src="app/app.js?v=2"></script>
 </body>
 </html>
