@@ -4,8 +4,6 @@
 !/.nojekyll
 !/index.html
 !/app/
-!/lib/
-!/modello/
 !/Logo/
 !/README.md
 .DS_Store

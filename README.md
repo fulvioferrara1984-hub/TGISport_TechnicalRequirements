@@ -1,45 +1,29 @@
 # Technical Requirements · TGI Sport
 
-Pagina web per compilare il **Technical Requirements Document** degli eventi AIR® (versione REMOTE) e scaricarlo in Word, con la stessa impaginazione del modello ufficiale.
+**Pagina spenta il 2026-10-31.** Il Tech Book (Technical Requirements Document delle partite remote) ora si compila nella piattaforma TGI, https://tgi-availability.web.app, nella scheda **Tech Book** della partita: competizione, squadre, data e KO arrivano dall'evento, il salvataggio è automatico e condiviso, il modello Word sta nella piattaforma (caricato dall'admin in *Settings → Tech Book*) senza la password del team.
+
+Il sito mostra solo un avviso con il link alla piattaforma. Se il browser conserva ancora il modulo della vecchia pagina (salvataggio locale `air-trd-v1`), l'avviso offre *Download data (.json)* nello stesso formato di *Export data*: il file si importa con *Import .json* nel Tech Book della partita.
 
 L'interfaccia è in inglese britannico; codice, commenti e questo README sono in italiano.
-
-## Come si usa
-
-1. Aprire il sito e inserire la **password del team**. Con *Remember on this device* non la chiede più su quel computer; *Sign out* la dimentica.
-2. Compilare le sezioni (Event overview, Accreditation, Signals, Schedule, Contacts). Ogni campo indica chi deve fornirlo: **TGI**, **HB** (Host Broadcaster), **UEFA**, **LED** (fornitore LED), **BC** (broadcaster VBR). In alto i contatori mostrano cosa manca a ciascuno; *Show fields for* evidenzia solo i campi di una parte.
-3. Scrivendo la **città** (con o senza paese) il **fuso orario** si imposta da solo per i paesi UEFA; si può cambiare a mano dal menu. Lo schedule si compila in ora locale: la colonna CET/CEST si calcola con il fuso e l'ora legale del giorno partita (es. Londra BST/GMT, Turchia senza ora legale).
-4. Il piè di pagina del Word riporta la **data dell'ultima modifica** del modulo, aggiornata da sola.
-5. **Export data** salva un `.json` da mandare a una parte esterna; **Import data** unisce il `.json` ricevuto (i valori pieni sovrascrivono, quelli vuoti non cancellano nulla).
-6. **Generate .docx** scarica il documento. I campi vuoti restano con il loro segnaposto `[...]`.
-
-## Privacy
-
-- I dati del modulo restano **solo nel browser** (salvataggio automatico locale): nessun server, nessun database, nessuna statistica.
-- La pagina ha una Content-Security-Policy: carica solo i propri file e non si collega a nient'altro.
-- Il **modello Word** (testi, loghi, diagramma) è **cifrato** con la password del team (AES-256-GCM, chiave PBKDF2-SHA256 con 600.000 iterazioni) in `modello/modello.js`. Nel modello non ci sono nomi né telefoni personali: i contatti TGI si inseriscono dalla pagina (*Remember TGI contacts in this browser*).
-
-## Aggiornare il modello o cambiare la password
-
-Il modello in chiaro e la password stanno solo in locale (`sorgente/template.docx`, `sorgente/password.txt`, mai pubblicati). Dopo una modifica:
-
-```bash
-node strumenti/cifra-modello.mjs sorgente/password.txt sorgente/template.docx modello/modello.js
-```
-
-La password è la prima riga di `sorgente/password.txt` che non inizia con `#`; lo strumento non la stampa mai. Per cambiarla basta scrivere la nuova nel file e rilanciare il comando. Poi si aumenta il numero `?v=` dei file in `index.html` e si pubblica.
-
-Nel modello Word i campi sono `{tag}` (sintassi docxtemplater); le righe di persone e mezzi si ripetono tra `{#people}…{/people}` e `{#vehicles}…{/vehicles}`. Ogni tag deve restare con una sola formattazione.
 
 ## Struttura
 
 | Percorso | Contenuto |
 |---|---|
-| `index.html` | pagina unica (accesso + modulo) |
-| `app/` | `app.js` modulo e generazione, `fusi.js` (città → fuso, conversione CET/CEST), `accesso.js`, `cifratura.js`, `archivio.js` (IndexedDB), `stile.css` |
-| `lib/` | PizZip e docxtemplater (copiati, nessun CDN; licenza MIT) |
-| `modello/modello.js` | modello Word cifrato |
+| `index.html` | avviso con il link alla piattaforma |
+| `app/avviso.js` | scarica il modulo rimasto nel browser, se c'è |
+| `app/avviso.css` | stile dell'avviso |
 | `Logo/` | logo TGI Sport |
+
+## La vecchia pagina
+
+Il modulo con il modello Word cifrato è nella storia del repository fino al commit `09a405c`. Per riaverlo in locale:
+
+```bash
+git worktree add ../webapp-vecchia 09a405c
+```
+
+`sorgente/` (modello in chiaro e password, mai pubblicati) e `strumenti/` restano solo in locale.
 
 ## Prova in locale
 
